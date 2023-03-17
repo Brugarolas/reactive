@@ -1,10 +1,10 @@
 {
   "name": "reactive",
   "version": "1.0.0",
-  "description": "Small events emitters and subscribe, observable and reactive objects library based on Hyperactiv by elbywan.",
+  "description": "Small events publisher & subscribe pattern, and observable & reactive objects library.",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha ./test --require @babel/register",
     "lint": "eslint ./src ./test",
     "lint:fix": "eslint --fix ./src ./test",
     "clean": "rimraf ./dist",
@@ -17,7 +17,8 @@
     "url": "git+https://github.com/Brugarolas/reactive.git"
   },
   "dependencies": {
-    "@babel/runtime-corejs3": "^7.21.0"
+    "@babel/runtime-corejs3": "^7.21.0",
+    "nanoid": "^4.0.1"
   },
   "browserslist": [
     ">0.25%",
@@ -49,16 +50,16 @@
   },
   "homepage": "https://github.com/Brugarolas/reactive#readme",
   "devDependencies": {
-		"@babel/core": "^7.21.3",
-		"@babel/eslint-parser": "^7.21.3",
-		"@babel/preset-env": "^7.20.2",
-		"@babel/register": "^7.21.0",
+    "@babel/core": "^7.21.3",
+    "@babel/eslint-parser": "^7.21.3",
+    "@babel/preset-env": "^7.20.2",
+    "@babel/register": "^7.21.0",
     "babel-preset-minify": "^0.5.2",
     "chai": "^4.3.7",
-		"eslint": "^8.36.0",
+    "eslint": "^8.36.0",
     "eslint-config-canonical": "^40.0.9",
-		"mocha": "^10.2.0",
+    "mocha": "^10.2.0",
     "npm-check-updates": "^16.7.12",
-		"rimraf": "^4.4.0"
-	}
+    "rimraf": "^4.4.0"
+  }
 }
