@@ -1,0 +1,64 @@
+{
+  "name": "reactive",
+  "version": "1.0.0",
+  "description": "Small events emitters and subscribe, observable and reactive objects library based on Hyperactiv by elbywan.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ./src ./test",
+    "lint:fix": "eslint --fix ./src ./test",
+    "clean": "rimraf ./dist",
+    "utils:outdated": "npm outdated",
+    "utils:updates": "ncu",
+    "utils:upgrades": "ncu -u"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Brugarolas/reactive.git"
+  },
+  "dependencies": {
+    "@babel/runtime-corejs3": "^7.21.0"
+  },
+  "browserslist": [
+    ">0.25%",
+    "not dead",
+    "not IE > 5",
+    "not android < 5"
+  ],
+  "keywords": [
+    "javascript",
+    "properties",
+    "computed",
+    "proxy",
+    "getter",
+    "setter",
+    "emitter",
+    "emit",
+    "subscribe",
+    "observable",
+    "observe",
+    "reactive",
+    "store"
+  ],
+  "author": "andres-brugarolas",
+  "license": "GNU v3",
+  "private": false,
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Brugarolas/reactive/issues"
+  },
+  "homepage": "https://github.com/Brugarolas/reactive#readme",
+  "devDependencies": {
+		"@babel/core": "^7.21.3",
+		"@babel/eslint-parser": "^7.21.3",
+		"@babel/preset-env": "^7.20.2",
+		"@babel/register": "^7.21.0",
+    "babel-preset-minify": "^0.5.2",
+    "chai": "^4.3.7",
+		"eslint": "^8.36.0",
+    "eslint-config-canonical": "^40.0.9",
+		"mocha": "^10.2.0",
+    "npm-check-updates": "^16.7.12",
+		"rimraf": "^4.4.0"
+	}
+}

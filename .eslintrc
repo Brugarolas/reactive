@@ -1,0 +1,27 @@
+{
+  "root": true,
+  "extends": [
+    "canonical"
+  ],
+  "globals": {
+    "describe": "readonly",
+    "it": "readonly",
+    "afterEach": "readonly",
+    "beforeEach": "readonly"
+  },
+  "rules": {
+    "@babel/no-invalid-this": 0,
+    "@babel/object-curly-spacing": ["error", "always"],
+    "canonical/destructuring-property-newline": 0,
+    "comma-dangle": ["error", "never"],
+    "array-bracket-newline": 0,
+    "array-element-newline": 0,
+    "linebreak-style": 0,
+    "import/extensions": 0,
+    "unicorn/prefer-node-remove": 0,
+    "unicorn/prefer-node-append": 0,
+    "unicorn/prevent-abbreviations": 0,
+    "promise/prefer-await-to-then": 0,
+    "object-curly-newline": ["error", { "multiline": true }]
+  }
+}
