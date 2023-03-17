@@ -1,2 +1,2 @@
 # reactive
-Small events emitters and subscribe, observable and reactive objects library
+Small events publisher & subscribe pattern, and observable & reactive objects library.

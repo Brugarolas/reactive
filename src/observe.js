@@ -82,16 +82,16 @@ export function observe (obj, options = {}) {
   // Init onChange subscribers
   obj.__subscription__ = subscription || new Subscription();
 
-  obj.subscribeChanges = function (callback) {
+  obj.subscribeToChanges = function (callback) {
     return obj.__subscription__.on('__changed__', callback);
   };
 
-  obj.unsubscribeChanges = function (id) {
+  obj.unsubscribeToChanges = function (id) {
     if (!obj.__subscription__) {
       return false;
     }
 
-    return obj.__subscription__.on('__changed__', id);
+    return obj.__subscription__.off('__changed__', id);
   };
 
   // For each observed object, each property is mapped with a set of computed functions depending on this property.

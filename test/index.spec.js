@@ -11,8 +11,6 @@ describe('Global', () => {
       b: 2
     });
 
-    const obj2 = observe({ ca: 3 });
-
     let result = 0;
 
     const sum = computed(() => {
@@ -270,5 +268,31 @@ describe('Global', () => {
     expect(obj.sum).to.equal(3)
     obj.a = 2
     expect(obj.sum).to.equal(4)
+  })
+
+  it('Subscription to changes works OK', async () => {
+    let sum = 0
+
+    const obj = observe({
+      a: 1,
+      b: 2,
+      c: 3
+    })
+
+    const subscriptionId = obj.subscribeToChanges(() => {
+      sum++;
+    })
+
+    expect(sum).to.equal(0)
+    obj.a = 2
+    obj.b = 3
+    await delay(100)
+    expect(sum).to.equal(2)
+
+    obj.unsubscribeToChanges(subscriptionId);
+
+    obj.c = 4
+    await delay(100)
+    expect(sum).to.equal(2)
   })
 });

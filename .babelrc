@@ -1,6 +1,6 @@
 {
   "presets": [
-    ["minify", { "builtIns": false, "deadcode": false, "mangle": false }],
+    ["minify", { "builtIns": false }],
     ["@babel/env", { "targets": { "browsers": [ ">0.25%", "not dead", "not IE > 5", "not android < 5" ] }, "useBuiltIns": false, "modules": false }]
   ],
   "comments": false
