@@ -8,6 +8,7 @@
     "lint": "eslint ./src ./test",
     "lint:fix": "eslint --fix ./src ./test",
     "clean": "rimraf ./dist",
+    "build:lib": "npm run clean && babel ./src --out-dir ./dist --copy-files",
     "utils:outdated": "npm outdated",
     "utils:updates": "ncu",
     "utils:upgrades": "ncu -u"
@@ -57,9 +58,9 @@
     "babel-preset-minify": "^0.5.2",
     "chai": "^4.3.7",
     "eslint": "^8.36.0",
-    "eslint-config-canonical": "^40.0.9",
+    "eslint-config-canonical": "^41.0.1",
     "mocha": "^10.2.0",
-    "npm-check-updates": "^16.7.12",
+    "npm-check-updates": "^16.7.13",
     "rimraf": "^4.4.0"
   }
 }

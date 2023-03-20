@@ -1,5 +1,5 @@
 import { __batch__ } from './batcher.js';
-import { computed } from './computed.js';
+import { computed as computedOriginal } from './computed.js';
 import { dispose } from './dispose.js';
 import { observe } from './observe.js';
 
@@ -12,19 +12,20 @@ export class Observable {
       value: []
     });
 
-    return observe(this, Object.assign({ bubble: true }, options));
+    this.observable = observe(this, Object.assign({ bubble: true }, options));
+
+    return this.observable;
   }
 
   computed (fn, opt) {
-    this.__computed__.push(computed(fn.bind(this), opt));
+    const computedProp = computedOriginal(fn.bind(this), opt)
+
+    this.__computed__.push(computedProp);
+
+    return computedProp;
   }
 
-  // TODO We are going to get rid of __handler__ for a subscription model
-  /* onChange (fn) {
-    this.__handler__ = fn;
-  } */
-
-  dispose () {
+  dispose (func) {
     while (this.__computed__.length) {
       dispose(this.__computed__.pop());
     }
@@ -33,5 +34,19 @@ export class Observable {
   process () {
     __batch__(this.__computed__);
     this.__computed__ = null;
+  }
+
+  reduce (callbackFn, initialValue) {
+    let accumulator = initialValue;
+
+    for (let i = 0; i < this.length; i++) {
+      if (accumulator !== undefined) {
+        accumulator = callbackFn.call(undefined, accumulator, this[i], i, this);
+      } else {
+        accumulator = this[i];
+      }
+    }
+
+    return accumulator;
   }
 }

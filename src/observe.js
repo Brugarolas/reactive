@@ -43,7 +43,8 @@ export function observe (obj, options = {}) {
     deep = true,
     bubble,
     bind,
-    subscription
+    subscription,
+    isArray
   } = options;
 
   // Ignore if the object is already observed
@@ -79,7 +80,7 @@ export function observe (obj, options = {}) {
     });
   }
 
-  // Init onChange subscribers
+  // Init onChange subscribersand array methods
   obj.__subscription__ = subscription || new Subscription();
 
   obj.subscribeToChanges = function (callback) {
