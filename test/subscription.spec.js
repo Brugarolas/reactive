@@ -105,96 +105,6 @@ describe('Subscription', () => {
     expect(obj.a).to.equal(5)
   })
 
-  // TODO fix
-  /*it('Array methods', () => {
-    const arr = new Observable([1, 2, 3])
-    let sum = 0
-
-    arr.computed(() => { sum = arr.reduce((acc, { val }) => acc + val, 0); })
-
-    expect(sum).to.equal(6)
-
-    arr.push({ val: 4 })
-    expect(sum).to.equal(10)
-
-    arr.pop()
-    expect(sum).to.equal(6)
-
-    arr.unshift({ val: 5 }, { val: 4 })
-    expect(sum).to.equal(15)
-
-    arr.shift()
-    expect(sum).to.equal(10)
-
-    arr.splice(1, 3)
-    expect(sum).to.equal(4)
-  })*/
-
-  // TODO fix
-  /* it('Dispose computed functions', async () => {
-    const obj = new Observable({ a: 0 })
-    let result = 0
-    let result2 = 0
-
-    const minusOne = obj.computed(() => {
-      result2 = obj.a - 1
-    })
-    obj.computed(() => {
-      result = obj.a + 1
-    })
-
-    await delay(100)
-    obj.a = 1
-    await delay(100)
-    expect(result).to.equal(2)
-    expect(result2).to.equal(0)
-
-    obj.dispose(minusOne)
-
-    await delay(100)
-    obj.a = 10
-    await delay(100)
-
-    expect(result).to.equal(11)
-    expect(result2).to.equal(0)
-  }) */
-
-  // TODO fix
-  /*
-  it('Does not observe the original object', () => {
-    const plainObj = { a: 0 }
-    const obj = new Observable(plainObj)
-
-    let plusOne = 0
-    obj.computed(() => {
-      plusOne = obs.a + 1
-    })
-
-    expect(plusOne).to.equal(2)
-    plainObj.a = 2
-    expect(plusOne).to.equal(2)
-    plainObj.a = 3
-    expect(plusOne).to.equal(4)
-  })
-
-  it('Chain of computations', () => {
-    const obj = new Observable({
-      a: 0,
-      b: 0,
-      c: 0,
-      d: 0
-    })
-
-    obj.computed(() => { obj.b = obj.a * 2 })
-    obj.computed(() => { obj.c = obj.b * 2 })
-    obj.computed(() => { obj.d = obj.c * 2 })
-
-    expect(obj.d).to.equal(0)
-    obj.a = 5
-    expect(obj.d).to.equal(40)
-  })
-  */
-
   it('Asynchronous computation', async () => {
     const obj = new Observable({ a: 0, b: 0 })
 
@@ -240,17 +150,6 @@ describe('Subscription', () => {
       expect(result).to.equal(6)
     })
   })
-
-  // TODO fix
-  /* it('Observe arrays', () => {
-    const arr = new Observable([1, 2, 3])
-    let sum = 0
-    arr.computed(() => sum = arr.reduce((acc, curr) => acc + curr))
-    expect(sum).to.equal(6)
-
-    arr[0] = 2
-    expect(sum).to.equal(7)
-  }) */
 
   it('Usage with \'this\'', () => {
     const obj = new Observable({

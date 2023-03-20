@@ -101,9 +101,14 @@ export function observe (obj, options = {}) {
 
   // Proxify the object in order to intercept get/set on props
   const proxy = new Proxy(obj, {
-    get (_, prop) {
+    get (target, prop, receiver) {
       if (prop === observedSymbol) {
         return true;
+      }
+
+      // Proxify the array
+      if (Array.isArray(obj)) {
+        Reflect.get(target, prop, receiver);
       }
 
       // If the prop is watched
@@ -139,7 +144,7 @@ export function observe (obj, options = {}) {
       return obj[prop];
     },
 
-    set (_, prop, value) {
+    set (target, prop, value) {
       if (!isWatched(prop, value)) {
         // If the prop is ignored
         obj[prop] = value;
