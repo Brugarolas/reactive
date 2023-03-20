@@ -1,5 +1,5 @@
 {
-  "name": "reacthive",
+  "name": "reactblast",
   "version": "1.0.0",
   "description": "Small collection of buzzling librsries like events publisher & subscribe pattern, and observable & reactive objects library.",
   "main": "dist/index.js",
