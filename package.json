@@ -1,7 +1,7 @@
 {
-  "name": "reactive",
+  "name": "reacthive",
   "version": "1.0.0",
-  "description": "Small events publisher & subscribe pattern, and observable & reactive objects library.",
+  "description": "Small collection of buzzling librsries like events publisher & subscribe pattern, and observable & reactive objects library.",
   "main": "dist/index.js",
   "scripts": {
     "test": "mocha ./test --require @babel/register",
