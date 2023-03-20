@@ -161,6 +161,7 @@ describe('Global', () => {
     expect(result2).to.equal(0)
 
     dispose(minusOne)
+
     obj.a = 10
     expect(result).to.equal(11)
     expect(result2).to.equal(0)
