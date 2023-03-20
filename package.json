@@ -17,6 +17,18 @@
     "type": "git",
     "url": "git+https://github.com/Brugarolas/reactive.git"
   },
+  "files": [
+    "dist/array-proxy.js",
+    "dist/batcher.js",
+    "dist/computed.js",
+    "dist/data.js",
+    "dist/dispose.js",
+    "dist/global.js",
+    "dist/observable.js",
+    "dist/observe.js",
+    "dist/subscription.js",
+    "dist/utils.js"
+  ],
   "dependencies": {
     "@babel/runtime-corejs3": "^7.21.0",
     "nanoid": "^4.0.1"
@@ -51,6 +63,7 @@
   },
   "homepage": "https://github.com/Brugarolas/reactive#readme",
   "devDependencies": {
+    "@babel/cli": "^7.21.0",
     "@babel/core": "^7.21.3",
     "@babel/eslint-parser": "^7.21.3",
     "@babel/preset-env": "^7.20.2",
