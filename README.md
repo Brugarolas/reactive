@@ -648,6 +648,10 @@ We can also import and use our event-emitter:
 `light` version uses JavaScript's [getters](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/get) [and](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty) [setters](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/set) to make all the reactivity magic possible, which comes with some tradeoffs that the verssion `full` (which uses [Proxy](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Proxy)) don't have to deal with.
 This section details some of the stuff to look out for when using `light` version in your applications.
 
+### Subscriptions does not work on `light` mode
+
+That's it. You can not subscribe & unsubscribe to changes in `light` version.
+
 ### Computed functions can cause infinite loops
 
 ```javascript

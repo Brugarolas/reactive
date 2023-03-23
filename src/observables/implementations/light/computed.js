@@ -72,5 +72,3 @@ export function computed (func) {
   computedNotify(func);
   return func;
 }
-
-// export default { computed, computedNotify, computedLock, computedQueue, computedI };
