@@ -10,7 +10,14 @@ First, we need to install `reactive-blast`:
 npm install --save reactive-blast
 ```
 
-## Usage
+## Documentation
+
+### Global
+
+`observe()`
+
+
+## Examples
 
 ### Global
 
@@ -71,6 +78,36 @@ Another example:
     expect(obj.sum).to.equal(14)
 ```
 
+With `dispose` you can remove the computed function from the reactive Maps, allowing garbage collection
+
+```js
+    import { Global } from 'reactive-blast';
+    import { expect } from 'chai'
+
+    const { observe, computed, dispose } = Global
+
+    const obj = observe({ a: 0 })
+    let result = 0
+    let result2 = 0
+
+    const minusOne = computed(() => {
+      result2 = obj.a - 1
+    })
+    computed(() => {
+      result = obj.a + 1
+    })
+
+    obj.a = 1
+    expect(result).to.equal(2)
+    expect(result2).to.equal(0)
+
+    dispose(minusOne)
+
+    obj.a = 10
+    expect(result).to.equal(11)
+    expect(result2).to.equal(0)
+```
+
 Multi-observed objects:
 
 ```js
@@ -127,36 +164,6 @@ Array methods:
 
     arr.splice(1, 3)
     expect(sum).to.equal(4)
-```
-
-Dispose computed functions:
-
-```js
-    import { Global } from 'reactive-blast';
-    import { expect } from 'chai'
-
-    const { observe, computed, dispose } = Global
-
-    const obj = observe({ a: 0 })
-    let result = 0
-    let result2 = 0
-
-    const minusOne = computed(() => {
-      result2 = obj.a - 1
-    })
-    computed(() => {
-      result = obj.a + 1
-    })
-
-    obj.a = 1
-    expect(result).to.equal(2)
-    expect(result2).to.equal(0)
-
-    dispose(minusOne)
-
-    obj.a = 10
-    expect(result).to.equal(11)
-    expect(result2).to.equal(0)
 ```
 
 Asynchronous computation:
@@ -327,3 +334,24 @@ Multiple observed objects:
     obj3.a = 0
     expect(result).to.equal(0)
 ```
+
+### Subscription
+
+Finally
+
+## Credits
+
+Credits for some libraries that served as inspiration or code reference.
+
+https://github.com/elbywan/hyperactiv
+https://github.com/luavixen/Patella
+
+https://github.com/vuejs/core/tree/main/packages/reactivity
+https://github.com/nx-js/observer-util
+https://github.com/salesforce/observable-membrane
+
+https://github.com/RisingStack/react-easy-state
+https://github.com/mseddon/preact-nx-observer
+
+https://github.com/vuejs/core/tree/main/packages/reactivity
+https://github.com/udamir/mosx

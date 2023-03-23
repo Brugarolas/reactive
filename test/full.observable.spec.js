@@ -1,9 +1,9 @@
-import { Observable } from '../src/observable.js';
+import { Observable } from '../src/observable/implementations/full/observable.js';
 import { expect } from 'chai'
 
 const delay = time => new Promise(resolve => setTimeout(resolve, time))
 
-describe('Subscription', () => {
+describe('Observable.full', () => {
   it('Simple computation', () => {
     const obj = new Observable({
       a: 1,

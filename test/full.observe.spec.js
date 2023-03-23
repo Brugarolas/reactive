@@ -1,10 +1,10 @@
-;import Global from '../src/global.js';
+import Global from '../src/observable/implementations/full/global.js';
 import { expect } from 'chai'
 
 const { observe, computed, dispose } = Global
 const delay = time => new Promise(resolve => setTimeout(resolve, time))
 
-describe('Global', () => {
+describe('Observe.full', () => {
   it('Simple computation', () => {
     const obj = observe({
       a: 1,

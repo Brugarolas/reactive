@@ -1,16 +1,9 @@
-import {
-  __batched__,
-  enqueue
-} from './batcher.js';
+import { __batched__, enqueue } from './batcher.js';
 import { data } from './data.js';
-import { Subscription } from './subscription.js';
-import {
-  defineBubblingProperties,
-  getInstanceMethodKeys,
-  isObject
-} from './utils.js';
+import { Subscription } from '../../../events/subscription.js';
+import { defineBubblingProperties, getInstanceMethodKeys, isObject } from '../../../helpers/utils.js';
 
-const { computedStack, trackerSymbol } = data; // TODO subscription
+const { computedStack, trackerSymbol } = data;
 
 const observedSymbol = Symbol('__observed__');
 

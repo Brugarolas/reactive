@@ -15,6 +15,14 @@ export function isPromise (object) {
   return object && Promise.resolve(object) === object;
 }
 
+export function isFunction(value) {
+  return typeof value === 'function';
+}
+
+export function hasOwnProperty(object, key) {
+  return key !== '__proto__' && Object.hasOwnProperty.call(object, key);
+}
+
 export function setHiddenKey (object, key, value) {
   Object.defineProperty(object, key, {
     configurable: true,
@@ -42,4 +50,8 @@ export function getInstanceMethodKeys(object) {
         return prop !== 'constructor' && typeof object[prop] === 'function';
       })
   );
+}
+
+export function throwError(message, generic) {
+  throw new (generic ? Error : TypeError)(message);
 }

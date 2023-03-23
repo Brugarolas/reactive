@@ -1,4 +1,4 @@
-import { isPromise } from './utils.js';
+import { isPromise } from '../helpers/utils.js';
 import { nanoid } from 'nanoid/non-secure';
 
 const NOT_FOUND = -1;
