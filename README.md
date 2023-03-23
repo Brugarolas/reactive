@@ -44,8 +44,18 @@ And to use `light` version:
     const { observe, computed, dispose } = Global
 ```
 
-[ADD EXAMPLE WITH EVENT-EMITTER]
-[ALSO ADD EXAMPLES OF INCLUDED POLYFILLS]
+Finally, we can also import and use our event-emitter:
+```js
+    import Subscription from 'reactivefy/events/subscription.js';
+
+    const singleton = new Subscription();
+
+    const subscriptionId = singleton.on('change', (data) => { console.log('Something changed', data) });
+
+    singleton.emit('change', { a: 1 });
+
+    singleton.off('change', subscriptionId)
+```
 
 ## Some real world examples
 [MODIFY HSFiddle]
