@@ -1,7 +1,5 @@
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/brugarolas)
 
-[UNDER CONSTRCTION]
-
 # Reactivefy
 Reactivefy is a library for <a href="https://wikipedia.org/wiki/Reactive_programming">reactive programming</a> in JavaScript, inspired by [Hyperactiv](https://github.com/elbywan/hyperactiv) and [Patella](https://github.com/luavixen/Patella).
 
@@ -44,21 +42,7 @@ And to use `light` version:
     const { observe, computed, dispose } = Global
 ```
 
-Finally, we can also import and use our event-emitter:
-```js
-    import Subscription from 'reactivefy/events/subscription.js';
-
-    const singleton = new Subscription();
-
-    const subscriptionId = singleton.on('change', (data) => { console.log('Something changed', data) });
-
-    singleton.emit('change', { a: 1 });
-
-    singleton.off('change', subscriptionId)
-```
-
 ## Some real world examples
-[MODIFY HSFiddle]
 Reactivefy provides functions for observing object mutations and acting on those mutations automatically.
 Possibly the best way to learn is by example, so let's take a page out of [Vue.js's guide](https://vuejs.org/guide/essentials/event-handling.html) and make a button that counts how many times it has been clicked using Reactivefy's `observe(object)` and `computed(func)`:
 ```html
@@ -75,7 +59,7 @@ Possibly the best way to learn is by example, so let's take a page out of [Vue.j
 </script>
 ```
 ![](./examples/counter-vid.gif)<br>
-View the [full source](./examples/counter.html) or [try it on JSFiddle](https://jsfiddle.net/luawtf/hL6g4emk/latest).
+View the [full source](./examples/counter.html).
 
 Notice how in the above example, the `<button>` doesn't do any extra magic to change its text when clicked; it just increments the model's click counter, which is "connected" to the button's text in the computed function.
 
@@ -134,7 +118,7 @@ Jump to one of:
 </script>
 ```
 ![](./examples/concatenator-vid.gif)<br>
-View the [full source](./examples/concatenator.html) or [try it on JSFiddle](https://jsfiddle.net/luawtf/zvnm4jp7/latest).
+View the [full source](./examples/concatenator.html).
 
 ### Debounced search
 ```html
@@ -164,7 +148,7 @@ View the [full source](./examples/concatenator.html) or [try it on JSFiddle](htt
 </script>
 ```
 ![](./examples/debounce-vid.gif)<br>
-View the [full source](./examples/debounce.html) or [try it on JSFiddle](https://jsfiddle.net/luawtf/abd3qxft/latest).
+View the [full source](./examples/debounce.html).
 
 ### Pony browser
 ```html
@@ -227,7 +211,7 @@ View the [full source](./examples/debounce.html) or [try it on JSFiddle](https:/
 </script>
 ```
 ![](./examples/pony-vid.gif)<br>
-View the [full source](./examples/pony.html) or [try it on JSFiddle](https://jsfiddle.net/luawtf/84wmaz0g/latest).
+View the [full source](./examples/pony.html).
 
 ## Multiple objects snippet
 ```javascript
@@ -356,7 +340,34 @@ Another example:
     expect(obj.sum).to.equal(14)
 ```
 
-[ADD EXAMPLE SUBSCRIBING TO CHANGES]
+Subscribe & unsubscribe to changes:
+
+```js
+    let sum = 0
+
+    const obj = observe({
+      a: 1,
+      b: 2,
+      c: 3
+    })
+
+    const subscriptionId = obj.subscribeToChanges(() => {
+      sum++;
+    })
+
+    expect(sum).to.equal(0)
+    obj.a = 2
+    obj.b = 3
+    await delay(100) // Subscriber functions are executed in a non-blocking, asynchronous way
+    expect(sum).to.equal(2)
+
+    obj.unsubscribeToChanges(subscriptionId);
+
+    obj.c = 4
+    await delay(100)
+    expect(sum).to.equal(2)
+```
+
 
 With `dispose` you can remove the computed function from the reactive Maps, allowing garbage collection
 
@@ -508,7 +519,7 @@ Currect asynchronous computation:
 
 ### Observable
 
-Instead of using Global function, you can use Observable class to create a reactive object. It's nearly identical.
+Instead of using Global function, you can use Observable class to create a reactive object. It's nearly identical. t is only supported on `full` version.
 
 ```js
     import { Observable } from 'reactivefy';
@@ -617,14 +628,28 @@ Multiple observed objects:
 
 ### Subscription
 
+We can also import and use our event-emitter:
 
+```js
+    import Subscription from 'reactivefy/events/subscription.js';
+
+    const singleton = new Subscription();
+
+    const subscriptionId = singleton.on('change', (data) => { console.log('Something changed', data) });
+
+    singleton.emit('change', { a: 1 });
+
+    singleton.off('change', subscriptionId)
+```
 
 
 ## `light` version pitfalls
+
 `light` version uses JavaScript's [getters](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/get) [and](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty) [setters](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Functions/set) to make all the reactivity magic possible, which comes with some tradeoffs that the verssion `full` (which uses [Proxy](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Proxy)) don't have to deal with.
 This section details some of the stuff to look out for when using `light` version in your applications.
 
 ### Computed functions can cause infinite loops
+
 ```javascript
 const object = Global.observe({ x: 10, y: 20 });
 
@@ -652,6 +677,7 @@ object.x = 25;
 ```
 
 ### Array mutations do not trigger dependencies
+
 ```javascript
 const object = Global.observe({
   array: [1, 2, 3]
@@ -672,6 +698,7 @@ object.array = object.array; // Output: 1,2,3,4,5
 ```
 
 ### Properties added after observation are not reactive
+
 ```javascript
 const object = Global.observe({ x: 10 });
 object.y = 20;
@@ -689,6 +716,7 @@ object.y += 2; // Still no output, as objects cannot be re-observed
 ```
 
 ### Prototypes will not be made reactive unless explicitly observed
+
 ```javascript
 const object = { a: 20 };
 const prototype = { b: 10 };
@@ -710,6 +738,7 @@ prototype.b = 32; // Output: 32
 ```
 
 ### Non-enumerable and non-configurable properties will not be made reactive
+
 ```javascript
 const object = { x: 1 };
 Object.defineProperty(object, "y", {
@@ -736,6 +765,7 @@ object.z--; // No output as this property is non-configurable
 ```
 
 ### Enumerable and configurable but non-writable properties will be made writable
+
 ```javascript
 const object = {};
 Object.defineProperty(object, "val", {
@@ -755,6 +785,7 @@ console.log(object.val); // Output: 20
 ```
 
 ### Getter/setter properties will be accessed then lose their getter/setters
+
 ```javascript
 const object = {
   get val() {
@@ -771,6 +802,7 @@ object.val; // No output as the getter has been overwritten
 ```
 
 ### Properties named `__proto__` are ignored
+
 ```javascript
 const object = {};
 Object.defineProperty(object, '__proto__', {
@@ -796,7 +828,7 @@ Description:
   <li>
     Makes an object and its properties reactive recursively.
     Subobjects (but not subfunctions!) will also be observed.
-    Note that <code>observe</code> does not create a new object, it mutates the object passed into it: <code>observe(object) === object</code>.
+    Note that <code>observe</code> in <code>light</code> version does not create a new object, it mutates the object passed into it: <code>observe(object) === object</code>.
   </li>
 </ul>
 Parameters:
@@ -806,6 +838,7 @@ Parameters:
 Returns:
 <ul>
   <li>Input <code>object</code>, now reactive</li>
+  <li>There are two methods in returned object to subscribe and unsuscribe to changes.: <code>subscribeToChanges(fn)</code> is to subscribe to changes and returns a <code>subscriptionId</code>, which you can use to unsubscribe to changes if necessary: <code>unsubscribeToChanges(subscriptionId)</code>. Functions passed to <code>subscribeToChanges(fn)</code> will be executed in a non-blocking, asynchronous way</li>
 </ul>
 
 <h4 id="ignore"><code>function ignore(object)</code></h4>
