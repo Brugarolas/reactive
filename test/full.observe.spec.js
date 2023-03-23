@@ -1,4 +1,4 @@
-import Global from '../src/observable/implementations/full/global.js';
+import Global from '../src/observables/implementations/full/global.js';
 import { expect } from 'chai'
 
 const { observe, computed, dispose } = Global

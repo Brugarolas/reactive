@@ -1,4 +1,4 @@
-import { Observable } from '../src/observable/implementations/full/observable.js';
+import { Observable } from '../src/observables/implementations/full/observable.js';
 import { expect } from 'chai'
 
 const delay = time => new Promise(resolve => setTimeout(resolve, time))

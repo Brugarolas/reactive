@@ -1,23 +1,12 @@
 import chai from 'chai';
 const { assert } = chai;
-
-// import { observe, ignore, computed, dispose } from '../src/observable/implementations/legacy/global.js';
-
-import Global from '../src/observable/light.js';
+import Global from '../src/observables/light.js';
 
 const { observe, ignore, computed, dispose } = Global
 
-
-/*const observe = () => {};
-const ignore = () => {};
-const computed = () => {};
-const dispose = () => {}; */
-
-describe('Observe.legacy', () => {
+describe('Observe.light', () => {
 
   it('Observed objects can have computed functions attached to them', () => {
-    console.log(Global)
-    // console.log(computed)
     let doubler = observe({ number: 10, doubledNumber: undefined });
     computed(() => doubler.doubledNumber = doubler.number * 2);
 
@@ -26,7 +15,7 @@ describe('Observe.legacy', () => {
     assert.strictEqual(doubler.doubledNumber, 40);
   });
 
-  /* iit('Multiple computed functions attached to one reactive object', () => {
+  it('Multiple computed functions attached to one reactive object', () => {
     const increments = observe({ x: 0, y: 0, z: 0 });
     computed(() => increments.y = increments.x + 1);
     computed(() => increments.z = increments.y + 1);
@@ -141,7 +130,7 @@ describe('Observe.legacy', () => {
     assert.strictEqual(nums.product, 237600000000);
   });
 
-  it('Replace objects in reactive properties works as expected (but may leak the old object)', () => {
+  it('Replace objects in reactive properties works OK (but may leak the old object)', () => {
     const database = observe({ user: null });
     database.user = {
       login: 'luawtf',
@@ -258,7 +247,7 @@ describe('Observe.legacy', () => {
     assert.deepEqual(Object.values(telephone), [,,,,,,].fill(1));
   });
 
-  it('Computed functions created&notified inside of another computed function (nested) are not executed immediately but added to the queue', () => {
+  it('Computed functions nested in another computed function are added to the queue', () => {
     let executed = false;
     computed(() => {
       computed(() => {
@@ -295,7 +284,7 @@ describe('Observe.legacy', () => {
     assert.strictEqual(updateCounter.valueToMultiply, 160);
   });
 
-  it('Nested computed functions where the inner function notifies the outer function will cause chaos', () => {
+  it('Nested computed functions where the inner notifies the outer will cause chaos', () => {
     const chaos = observe({ x: 10 });
     computed(() => {
       chaos.x;
@@ -377,7 +366,7 @@ describe('Observe.legacy', () => {
     assert.strictEqual(countToFour.number, 4);
   });
 
-  it('Dispose can be called in \'clean mode\' which removes all dependencies but allows the computed function to be notified manually', () => {
+  it('Dispose can be called to remove all dependencies and allow to notify the computed function', () => {
     const rooter = observe({
       in: 0,
       out: 0
@@ -428,7 +417,7 @@ describe('Observe.legacy', () => {
     dispose(computer);
   });
 
-  it('Disposing a computed function that was notified (with execution pending) will cause it to be removed from the queue', () => {
+  it('Disposing a computed function that was notified will cause it to be removed from the queue', () => {
     const power = observe({ in: 0, pow2: 0, pow4: 0 });
     function pow2() {
       power.pow2 = power.in ** 2;
@@ -453,7 +442,7 @@ describe('Observe.legacy', () => {
 
 });
 
-describe('Causing problems:', () => {
+describe('Observe.light (causing problems)', () => {
 
   const nonObjects = [
     undefined, null, false, true,
@@ -486,7 +475,7 @@ describe('Causing problems:', () => {
     nonFunctions.forEach(val => assert.throws(() => computed(val)));
   });
 
-  it('Ccomputed fails if you create an infinite loop with two computed functions that depend on eachother', () => {
+  it('Computed fails if you create an infinite loop with two co-dependant computed functions', () => {
     const object = observe({ x: 10, y: 20 });
     computed(() => {
       object.x = object.y + 1;
@@ -508,7 +497,7 @@ describe('Causing problems:', () => {
 
 });
 
-describe('Edge cases', () => {
+describe('Observe.light (edge cases)', () => {
 
   it('Properties added after observation are not reactive', () => {
     const object = observe({});
@@ -520,7 +509,7 @@ describe('Edge cases', () => {
     assert.strictEqual(val, 10);
   });
 
-  it('Bbjects cannot be reobserved to make properties added after observation reactive', () => {
+  it('Objects cannot be reobserved to make properties added after observation reactive', () => {
     const object = observe({});
     object.val = 10;
     observe(object); // Does nothing
@@ -709,33 +698,33 @@ describe('Edge cases', () => {
     assert.strictEqual(thisValue, this);
   });
 
-  describe('argument returns', () => {
+  describe('Observe.light (argument returns)', () => {
 
-    it('observe returns its first argument', () => {
+    it('Observe returns its first argument', () => {
       const object = {};
       assert.strictEqual(observe(object), object);
       assert.strictEqual(observe(observe(object)), object);
     });
 
-    it('ignore returns its first argument', () => {
+    it('Ignore returns its first argument', () => {
       const object = {};
       assert.strictEqual(ignore(object), object);
       assert.strictEqual(ignore(ignore(object)), object);
     });
 
-    it('computed returns its first argument', () => {
+    it('Computed returns its first argument', () => {
       function func() {}
       assert.strictEqual(computed(func), func);
       assert.strictEqual(computed(computed(func)), func);
     });
 
-    it('dispose returns its first argument', () => {
+    it('Dispose returns its first argument', () => {
       function func() {}
       assert.strictEqual(dispose(func), func);
       assert.strictEqual(dispose(dispose(func)), func);
     });
 
-    it('dispose returns nothing if called without a valid first argument', () => {
+    it('Dispose returns nothing if called without a valid first argument', () => {
       computed(() => {
         assert.isUndefined(dispose());
         assert.isUndefined(dispose(null));
@@ -753,9 +742,9 @@ describe('Edge cases', () => {
 
   });
 
-  describe('observed object compatibility', () => {
+  describe('Observe.light (observed object compatibility)', () => {
 
-    it('reactive properties can be get/set like normal', () => {
+    it('Reactive properties can be get/set like normal', () => {
       const object = observe({ value: 10 });
 
       assert.strictEqual(object.value, 10);
@@ -767,7 +756,7 @@ describe('Edge cases', () => {
       assert.strictEqual(object.value, '[object Object]10');
     });
 
-    it('observed objects can be iterated through and spread', () => {
+    it('Observed objects can be iterated through and spread', () => {
       const objectObserved = observe({ a: 10, b: 20, c: 30 });
       const objectSpread = { ...objectObserved };
       const objectIdentical = { a: 10, b: 20, c: 30 };
@@ -785,7 +774,7 @@ describe('Edge cases', () => {
       assert.deepEqual(Object.values(objectObserved), [10, 20, 30]);
     });
 
-    it('observed objects can have cyclic references', () => {
+    it('Observed objects can have cyclic references', () => {
       const object1 = { object2: undefined, value: !0 };
       const object2 = { object1: undefined, value: !1 };
       object1.object2 = object2;
@@ -805,9 +794,9 @@ describe('Edge cases', () => {
 
   });
 
-  describe('reactive functions', () => {
+  describe('Observer.light (reactive functions)', () => {
 
-    it('functions can be made reactive', () => {
+    it('Functions can be made reactive', () => {
       function func() {}
       func.x = 10;
       observe(func);
@@ -819,7 +808,7 @@ describe('Edge cases', () => {
       assert.strictEqual(times, 2);
     });
 
-    it('reactive functions can be called', () => {
+    it('Reactive functions can be called', () => {
       let value;
       function func(newValue) {
         value = newValue;
@@ -831,7 +820,7 @@ describe('Edge cases', () => {
       assert.strictEqual(value, 50);
     });
 
-    it('functions are exempt from recursive reactivity', () => {
+    it('Functions are exempt from recursive reactivity', () => {
       function func() {}
       func.x = 10;
       const object = observe({ func });
@@ -843,7 +832,7 @@ describe('Edge cases', () => {
       assert.strictEqual(times, 1);
     });
 
-    it('functions are exempt from implicit reactivity', () => {
+    it('Functions are exempt from implicit reactivity', () => {
       function func() {}
       func.x = 10;
       const object = observe({ func: null });
@@ -858,9 +847,9 @@ describe('Edge cases', () => {
 
   });
 
-  describe('order of execution', () => {
+  describe('Observer.light (order of execution)', () => {
 
-    it('computed functions execute in the order they are notified', () => {
+    it('Computed functions execute in the order they are notified', () => {
       const values = [];
       const func1 = () => values.push(1);
       const func2 = () => values.push(2);
@@ -877,7 +866,7 @@ describe('Edge cases', () => {
       assert.deepEqual(values, [2,4,1,3]);
     });
 
-    it('computed functions can be notified multiple times but cannot be queued multiple times', () => {
+    it('Computed functions can be notified multiple times but cannot be queued multiple times', () => {
       const values = [];
       const func1 = () => values.push(1);
       const func2 = () => values.push(2);
@@ -905,7 +894,7 @@ describe('Edge cases', () => {
       assert.deepEqual(values, [1,2,3,4]);
     });
 
-    it('disposing queued computed functions preserves the queue order', () => {
+    it('Disposing queued computed functions preserves the queue order', () => {
       const values = [];
       const func1 = () => { values.push(1); };
       const func2 = () => { values.push(2); };
@@ -923,7 +912,7 @@ describe('Edge cases', () => {
       assert.deepEqual(values, [1,4,5,2]);
     });
 
-    it('object dependencies are notified in the order they are added', () => {
+    it('Object dependencies are notified in the order they are added', () => {
       const object = observe({ x: 10 });
 
       const values = [];
@@ -943,7 +932,7 @@ describe('Edge cases', () => {
       assert.deepEqual(values, [2,3,1,4]);
     });
 
-    it('object dependencies are always notified in the order they are added, even when multiple objects get involved', () => {
+    it('Object dependencies are always notified in the order they are added, even when multiple objects get involved', () => {
       const object1 = observe({ x: 10 });
       const object2 = observe({ x: 10 });
 
@@ -977,7 +966,7 @@ describe('Edge cases', () => {
       assert.deepEqual(values, [1,2,3,4]);
     });
 
-    it('disposing a dependant computed function preserves the order of the dependencies', () => {
+    it('Disposing a dependant computed function preserves the order of the dependencies', () => {
       const object = observe({ x: 10 });
 
       const values = [];
@@ -997,6 +986,6 @@ describe('Edge cases', () => {
       assert.deepEqual(values, [3,2,1]);
     });
 
-  }); */
+  });
 
 });
