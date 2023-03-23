@@ -4,7 +4,7 @@ import Global from '../src/observables/light.js';
 
 const { observe, ignore, computed, dispose } = Global
 
-describe('Observe.light', () => {
+describe('Observe.light:', () => {
 
   it('Observed objects can have computed functions attached to them', () => {
     let doubler = observe({ number: 10, doubledNumber: undefined });
@@ -440,552 +440,551 @@ describe('Observe.light', () => {
     assert.deepEqual(power, { in: 6, pow2: 36, pow4: 1296 });
   });
 
-});
+  describe('Causing problems:', () => {
 
-describe('Observe.light (causing problems)', () => {
+    const nonObjects = [
+      undefined, null, false, true,
+      0, 1, -1, 0.5, -0.5,
+      '', 'Hello, world.',
+      0n, 1n, 1_000_000_000_000_000_000_000_000_000_000n,
+      Symbol(), Symbol('Example'),
+      [], [1, 2, 3, 4, 5], [
+        'Arrays are not considered objects by isObject',
+        'This is to prevent silly things like trying to observe an array with thousands of elements',
+        'Or the fact that observation would most definitely break many important array features'
+      ]
+    ];
 
-  const nonObjects = [
-    undefined, null, false, true,
-    0, 1, -1, 0.5, -0.5,
-    '', 'Hello, world.',
-    0n, 1n, 1_000_000_000_000_000_000_000_000_000_000n,
-    Symbol(), Symbol('Example'),
-    [], [1, 2, 3, 4, 5], [
-      'Arrays are not considered objects by isObject',
-      'This is to prevent silly things like trying to observe an array with thousands of elements',
-      'Or the fact that observation would most definitely break many important array features'
-    ]
-  ];
+    const nonFunctions = [
+      ...nonObjects,
+      {}, { x: 10, y: true }, { obj: { hello() {} }, goodbye() {} },
+      new Date(), new RegExp('test'), new Map()
+    ];
 
-  const nonFunctions = [
-    ...nonObjects,
-    {}, { x: 10, y: true }, { obj: { hello() {} }, goodbye() {} },
-    new Date(), new RegExp('test'), new Map()
-  ];
-
-  it('Observe fails if passed a non-object (not including arrays) value', () => {
-    nonObjects.forEach(val => assert.throws(() => observe(val)));
-  });
-
-  it('Ignore fails if passed a non-object (not including arrays) value', () => {
-    nonObjects.forEach(val => assert.throws(() => ignore(val)));
-  });
-
-  it('Computed fails if passed a non-callable value', () => {
-    nonFunctions.forEach(val => assert.throws(() => computed(val)));
-  });
-
-  it('Computed fails if you create an infinite loop with two co-dependant computed functions', () => {
-    const object = observe({ x: 10, y: 20 });
-    computed(() => {
-      object.x = object.y + 1;
-    });
-    function oops() {
-      object.y = object.x + 1;
-    }
-
-    assert.throws(() => computed(oops));
-  });
-
-  it('Dispose fails if passed a non-callable value', () => {
-    nonFunctions.forEach(val => assert.throws(() => dispose(val)));
-  });
-
-  it('Dispose fails if passed no arguments while no computed function is executing', () => {
-    assert.throws(() => dispose());
-  });
-
-});
-
-describe('Observe.light (edge cases)', () => {
-
-  it('Properties added after observation are not reactive', () => {
-    const object = observe({});
-    object.val = 10;
-    let val; computed(() => val = object.val);
-
-    assert.strictEqual(val, 10);
-    object.val = 20; // Not reactive
-    assert.strictEqual(val, 10);
-  });
-
-  it('Objects cannot be reobserved to make properties added after observation reactive', () => {
-    const object = observe({});
-    object.val = 10;
-    observe(object); // Does nothing
-    let val; computed(() => val = object.val);
-
-    assert.strictEqual(val, 10);
-    object.val = 20; // Not reactive
-    assert.strictEqual(val, 10);
-  });
-
-  it('Observe does not reactify prototypes', () => {
-    const object = observe(Object.setPrototypeOf({ x: 10 }, { y: 20 }));
-    let times = 0; computed(() => (object.x, object.y, times++));
-
-    assert.strictEqual(object.x, 10);
-    assert.strictEqual(object.y, 20);
-    assert.strictEqual(times, 1);
-
-    object.x = 30;
-    assert.strictEqual(times, 2);
-    object.y = 30; // Not reactive
-    assert.strictEqual(times, 2);
-    object.x = 50;
-    assert.strictEqual(times, 3);
-    object.y = 100; // Not reactive
-    assert.strictEqual(times, 3);
-  });
-
-  it('Prototypes can be observed but their children will not be made reactive', () => {
-    const object = Object.setPrototypeOf({ x: 10 }, observe({ y: 20 }));
-    let times = 0; computed(() => (object.x, object.y, times++));
-
-    assert.strictEqual(object.x, 10);
-    assert.strictEqual(object.y, 20);
-    assert.strictEqual(times, 1);
-
-    object.x = 30; // Not reactive
-    assert.strictEqual(times, 1);
-    object.y = 30;
-    assert.strictEqual(times, 2);
-    object.x = 50; // Not reactive
-    assert.strictEqual(times, 2);
-    object.y = 100;
-    assert.strictEqual(times, 3);
-  });
-
-  it('Properties that share names with Object.prototype properties work as expected', () => {
-    const object = observe({ hasOwnProperty: 10 });
-    let val; computed(() => val = object.hasOwnProperty);
-
-    assert.strictEqual(val, 10);
-    object.hasOwnProperty = 20;
-    assert.strictEqual(val, 20);
-  });
-
-  it('Nonconfigurable properties will not be made reactive', () => {
-    const object = observe(Object.defineProperty({}, 'val', {
-      configurable: false,
-      enumerable: true,
-      writable: true,
-      value: 10
-    }));
-    let val; computed(() => val = object.val);
-
-    assert.strictEqual(val, 10);
-    object.val = 20; // Not reactive
-    assert.strictEqual(val, 10);
-  });
-
-  it('Nonenumerable properties will not be made reactive', () => {
-    const object = observe(Object.defineProperty({}, 'val', {
-      configurable: true,
-      enumerable: false,
-      writable: true,
-      value: 10
-    }));
-    let val; computed(() => val = object.val);
-
-    assert.strictEqual(val, 10);
-    object.val = 20; // Not reactive
-    assert.strictEqual(val, 10);
-  });
-
-  it('Nonwritable but enumerable and configurable properties will be overwritten and made writable', () => {
-    const object = observe(Object.defineProperty({}, 'val', {
-      configurable: true,
-      enumerable: true,
-      writable: false,
-      value: 10
-    }));
-
-    assert.strictEqual(object.val, 10);
-    object.val = 20;
-    assert.strictEqual(object.val, 20);
-  });
-
-  it('Enumerable and configurable properties will remain enumerable and configurable', () => {
-    const oldDescriptor = {
-      configurable: true,
-      enumerable: true,
-      writable: false,
-      value: 10
-    };
-    const object = observe(Object.defineProperty({}, 'val', oldDescriptor));
-    const newDescriptor = Object.getOwnPropertyDescriptor(object, 'val');
-
-    assert.strictEqual(!!newDescriptor.enumerable, !!oldDescriptor.enumerable);
-    assert.strictEqual(!!newDescriptor.configurable, !!oldDescriptor.configurable);
-  });
-
-  it('No new enumerable properties are added', () => {
-    const object = { a: 10, b: 20, c: 30 };
-
-    const enumeratedKeysBefore = Object.keys(object).sort();
-    observe(object);
-    const enumeratedKeysAfter = Object.keys(object).sort();
-
-    assert.deepEqual(enumeratedKeysBefore, enumeratedKeysAfter);
-  });
-
-  it('Getter/setter properties will be accessed then overwritten', () => {
-    let accessCount = 0;
-    const object = {
-      get val() {
-        accessCount++;
-        return 10;
-      }
-    };
-
-    assert.strictEqual(accessCount, 0);
-    object.val;
-    assert.strictEqual(accessCount, 1);
-    observe(object);
-    assert.strictEqual(accessCount, 2);
-    object.val; // Overwritten by observe
-    assert.strictEqual(accessCount, 2);
-  });
-
-  it('Properties named __proto__ will not be made reactive', () => {
-    const object = Object.defineProperty(Object.create(null), '__proto__', {
-      configurable: true,
-      enumerable: true,
-      writable: true,
-      value: 10
+    it('Observe fails if passed a non-object (not including arrays) value', () => {
+      nonObjects.forEach(val => assert.throws(() => observe(val)));
     });
 
-    object.__proto__ = 20;
-    assert.strictEqual(object.__proto__, 20);
-    assert.strictEqual(Object.getPrototypeOf(object), null);
-
-    const descriptor = () => Object.assign({}, Object.getOwnPropertyDescriptor(object, '__proto__'));
-
-    const originalDescriptor = descriptor();
-    observe(object);
-    const observedDescriptor = descriptor();
-
-    assert.deepEqual(observedDescriptor, originalDescriptor);
-  });
-
-  it('Arrays are not reactive', () => {
-    const object = observe({ array: [1, 2, 3] });
-    let times = 0; computed(() => (object.array[1], times++));
-
-    assert.strictEqual(times, 1);
-    object.array[1] = 4; // Not reactive
-    assert.strictEqual(times, 1);
-    object.array.pop();
-    object.array.pop();
-    object.array.push(3); // Still not reactive :P (no array function hacks)
-    assert.strictEqual(times, 1);
-    object.array[1] = 10;
-    object.array = object.array; // There we go!
-    assert.strictEqual(times, 2);
-  });
-
-  it('Computed does not leak `computedQueue` in the `this` value', () => {
-    let thisValue;
-    computed(function() {
-      // Patella versions <= 2.1.0 could leak the `computedQueue` in the `this`
-      // value when calling computed functions
-      // This was fixed and now the global this value is used instead
-      thisValue = this;
+    it('Ignore fails if passed a non-object (not including arrays) value', () => {
+      nonObjects.forEach(val => assert.throws(() => ignore(val)));
     });
 
-    assert.isNotArray(thisValue);
-    assert.strictEqual(thisValue, this);
-  });
-
-  describe('Observe.light (argument returns)', () => {
-
-    it('Observe returns its first argument', () => {
-      const object = {};
-      assert.strictEqual(observe(object), object);
-      assert.strictEqual(observe(observe(object)), object);
+    it('Computed fails if passed a non-callable value', () => {
+      nonFunctions.forEach(val => assert.throws(() => computed(val)));
     });
 
-    it('Ignore returns its first argument', () => {
-      const object = {};
-      assert.strictEqual(ignore(object), object);
-      assert.strictEqual(ignore(ignore(object)), object);
-    });
-
-    it('Computed returns its first argument', () => {
-      function func() {}
-      assert.strictEqual(computed(func), func);
-      assert.strictEqual(computed(computed(func)), func);
-    });
-
-    it('Dispose returns its first argument', () => {
-      function func() {}
-      assert.strictEqual(dispose(func), func);
-      assert.strictEqual(dispose(dispose(func)), func);
-    });
-
-    it('Dispose returns nothing if called without a valid first argument', () => {
+    it('Computed fails if you create an infinite loop with two co-dependant computed functions', () => {
+      const object = observe({ x: 10, y: 20 });
       computed(() => {
-        assert.isUndefined(dispose());
-        assert.isUndefined(dispose(null));
-        assert.isUndefined(dispose(undefined));
-        assert.isUndefined(dispose(null, null));
-        assert.isUndefined(dispose(null, undefined));
-        assert.isUndefined(dispose(null, false));
-        assert.isUndefined(dispose(null, true));
-        assert.isUndefined(dispose(undefined, null));
-        assert.isUndefined(dispose(undefined, undefined));
-        assert.isUndefined(dispose(undefined, false));
-        assert.isUndefined(dispose(undefined, true));
+        object.x = object.y + 1;
       });
+      function oops() {
+        object.y = object.x + 1;
+      }
+
+      assert.throws(() => computed(oops));
+    });
+
+    it('Dispose fails if passed a non-callable value', () => {
+      nonFunctions.forEach(val => assert.throws(() => dispose(val)));
+    });
+
+    it('Dispose fails if passed no arguments while no computed function is executing', () => {
+      assert.throws(() => dispose());
     });
 
   });
 
-  describe('Observe.light (observed object compatibility)', () => {
+  describe('Edge cases:', () => {
 
-    it('Reactive properties can be get/set like normal', () => {
-      const object = observe({ value: 10 });
+    it('Properties added after observation are not reactive', () => {
+      const object = observe({});
+      object.val = 10;
+      let val; computed(() => val = object.val);
 
-      assert.strictEqual(object.value, 10);
-      object.value = 20;
-      assert.strictEqual(object.value, 20);
-      object.value = { x: 10 };
-      assert.deepEqual(object.value, { x: 10 });
-      object.value += 10;
-      assert.strictEqual(object.value, '[object Object]10');
+      assert.strictEqual(val, 10);
+      object.val = 20; // Not reactive
+      assert.strictEqual(val, 10);
     });
 
-    it('Observed objects can be iterated through and spread', () => {
-      const objectObserved = observe({ a: 10, b: 20, c: 30 });
-      const objectSpread = { ...objectObserved };
-      const objectIdentical = { a: 10, b: 20, c: 30 };
+    it('Objects cannot be reobserved to make properties added after observation reactive', () => {
+      const object = observe({});
+      object.val = 10;
+      observe(object); // Does nothing
+      let val; computed(() => val = object.val);
 
-      assert.deepEqual(objectObserved, objectSpread);
-      assert.deepEqual(objectObserved, objectIdentical);
-      assert.deepEqual(objectSpread, objectIdentical);
-
-      const keysExpected = ['a', 'b', 'c'];
-
-      let keys = []; for (const key in objectObserved) keys.push(key);
-      assert.deepEqual(keys, keysExpected);
-
-      assert.deepEqual(Object.keys(objectObserved), keysExpected);
-      assert.deepEqual(Object.values(objectObserved), [10, 20, 30]);
+      assert.strictEqual(val, 10);
+      object.val = 20; // Not reactive
+      assert.strictEqual(val, 10);
     });
 
-    it('Observed objects can have cyclic references', () => {
-      const object1 = { object2: undefined, value: !0 };
-      const object2 = { object1: undefined, value: !1 };
-      object1.object2 = object2;
-      object2.object1 = object1;
+    it('Observe does not reactify prototypes', () => {
+      const object = observe(Object.setPrototypeOf({ x: 10 }, { y: 20 }));
+      let times = 0; computed(() => (object.x, object.y, times++));
 
-      observe(object1);
+      assert.strictEqual(object.x, 10);
+      assert.strictEqual(object.y, 20);
+      assert.strictEqual(times, 1);
 
-      assert.strictEqual(object1.object2, object2);
-      assert.strictEqual(object2.object1, object1);
-      assert.strictEqual(object1.object2.object1, object1);
-      assert.strictEqual(object2.object1.object2, object2);
-      assert.strictEqual(object1.object2.object1.object2.object1.object2, object2);
-
-      assert.strictEqual(object1.object2.object1.object2.object1.value, true);
-      assert.strictEqual(object2.object1.object2.object1.object2.value, false);
+      object.x = 30;
+      assert.strictEqual(times, 2);
+      object.y = 30; // Not reactive
+      assert.strictEqual(times, 2);
+      object.x = 50;
+      assert.strictEqual(times, 3);
+      object.y = 100; // Not reactive
+      assert.strictEqual(times, 3);
     });
 
-  });
+    it('Prototypes can be observed but their children will not be made reactive', () => {
+      const object = Object.setPrototypeOf({ x: 10 }, observe({ y: 20 }));
+      let times = 0; computed(() => (object.x, object.y, times++));
 
-  describe('Observer.light (reactive functions)', () => {
+      assert.strictEqual(object.x, 10);
+      assert.strictEqual(object.y, 20);
+      assert.strictEqual(times, 1);
 
-    it('Functions can be made reactive', () => {
-      function func() {}
-      func.x = 10;
-      observe(func);
+      object.x = 30; // Not reactive
+      assert.strictEqual(times, 1);
+      object.y = 30;
+      assert.strictEqual(times, 2);
+      object.x = 50; // Not reactive
+      assert.strictEqual(times, 2);
+      object.y = 100;
+      assert.strictEqual(times, 3);
+    });
 
-      let times = 0; computed(() => (func.x, times++));
+    it('Properties that share names with Object.prototype properties work as expected', () => {
+      const object = observe({ hasOwnProperty: 10 });
+      let val; computed(() => val = object.hasOwnProperty);
+
+      assert.strictEqual(val, 10);
+      object.hasOwnProperty = 20;
+      assert.strictEqual(val, 20);
+    });
+
+    it('Nonconfigurable properties will not be made reactive', () => {
+      const object = observe(Object.defineProperty({}, 'val', {
+        configurable: false,
+        enumerable: true,
+        writable: true,
+        value: 10
+      }));
+      let val; computed(() => val = object.val);
+
+      assert.strictEqual(val, 10);
+      object.val = 20; // Not reactive
+      assert.strictEqual(val, 10);
+    });
+
+    it('Nonenumerable properties will not be made reactive', () => {
+      const object = observe(Object.defineProperty({}, 'val', {
+        configurable: true,
+        enumerable: false,
+        writable: true,
+        value: 10
+      }));
+      let val; computed(() => val = object.val);
+
+      assert.strictEqual(val, 10);
+      object.val = 20; // Not reactive
+      assert.strictEqual(val, 10);
+    });
+
+    it('Nonwritable but enumerable and configurable properties will be overwritten and made writable', () => {
+      const object = observe(Object.defineProperty({}, 'val', {
+        configurable: true,
+        enumerable: true,
+        writable: false,
+        value: 10
+      }));
+
+      assert.strictEqual(object.val, 10);
+      object.val = 20;
+      assert.strictEqual(object.val, 20);
+    });
+
+    it('Enumerable and configurable properties will remain enumerable and configurable', () => {
+      const oldDescriptor = {
+        configurable: true,
+        enumerable: true,
+        writable: false,
+        value: 10
+      };
+      const object = observe(Object.defineProperty({}, 'val', oldDescriptor));
+      const newDescriptor = Object.getOwnPropertyDescriptor(object, 'val');
+
+      assert.strictEqual(!!newDescriptor.enumerable, !!oldDescriptor.enumerable);
+      assert.strictEqual(!!newDescriptor.configurable, !!oldDescriptor.configurable);
+    });
+
+    it('No new enumerable properties are added', () => {
+      const object = { a: 10, b: 20, c: 30 };
+
+      const enumeratedKeysBefore = Object.keys(object).sort();
+      observe(object);
+      const enumeratedKeysAfter = Object.keys(object).sort();
+
+      assert.deepEqual(enumeratedKeysBefore, enumeratedKeysAfter);
+    });
+
+    it('Getter/setter properties will be accessed then overwritten', () => {
+      let accessCount = 0;
+      const object = {
+        get val() {
+          accessCount++;
+          return 10;
+        }
+      };
+
+      assert.strictEqual(accessCount, 0);
+      object.val;
+      assert.strictEqual(accessCount, 1);
+      observe(object);
+      assert.strictEqual(accessCount, 2);
+      object.val; // Overwritten by observe
+      assert.strictEqual(accessCount, 2);
+    });
+
+    it('Properties named __proto__ will not be made reactive', () => {
+      const object = Object.defineProperty(Object.create(null), '__proto__', {
+        configurable: true,
+        enumerable: true,
+        writable: true,
+        value: 10
+      });
+
+      object.__proto__ = 20;
+      assert.strictEqual(object.__proto__, 20);
+      assert.strictEqual(Object.getPrototypeOf(object), null);
+
+      const descriptor = () => Object.assign({}, Object.getOwnPropertyDescriptor(object, '__proto__'));
+
+      const originalDescriptor = descriptor();
+      observe(object);
+      const observedDescriptor = descriptor();
+
+      assert.deepEqual(observedDescriptor, originalDescriptor);
+    });
+
+    it('Arrays are not reactive', () => {
+      const object = observe({ array: [1, 2, 3] });
+      let times = 0; computed(() => (object.array[1], times++));
 
       assert.strictEqual(times, 1);
-      func.x++;
+      object.array[1] = 4; // Not reactive
+      assert.strictEqual(times, 1);
+      object.array.pop();
+      object.array.pop();
+      object.array.push(3); // Still not reactive :P (no array function hacks)
+      assert.strictEqual(times, 1);
+      object.array[1] = 10;
+      object.array = object.array; // There we go!
       assert.strictEqual(times, 2);
     });
 
-    it('Reactive functions can be called', () => {
-      let value;
-      function func(newValue) {
-        value = newValue;
-      }
+    it('Computed does not leak `computedQueue` in the `this` value', () => {
+      let thisValue;
+      computed(function() {
+        // Patella versions <= 2.1.0 could leak the `computedQueue` in the `this`
+        // value when calling computed functions
+        // This was fixed and now the global this value is used instead
+        thisValue = this;
+      });
 
-      observe(func);
-
-      func(50);
-      assert.strictEqual(value, 50);
+      assert.isNotArray(thisValue);
+      assert.strictEqual(thisValue, this);
     });
 
-    it('Functions are exempt from recursive reactivity', () => {
-      function func() {}
-      func.x = 10;
-      const object = observe({ func });
+    describe('Argument returns:', () => {
 
-      let times = 0; computed(() => (object.func.x, times++));
+      it('Observe returns its first argument', () => {
+        const object = {};
+        assert.strictEqual(observe(object), object);
+        assert.strictEqual(observe(observe(object)), object);
+      });
 
-      assert.strictEqual(times, 1);
-      object.func.x++;
-      assert.strictEqual(times, 1);
+      it('Ignore returns its first argument', () => {
+        const object = {};
+        assert.strictEqual(ignore(object), object);
+        assert.strictEqual(ignore(ignore(object)), object);
+      });
+
+      it('Computed returns its first argument', () => {
+        function func() {}
+        assert.strictEqual(computed(func), func);
+        assert.strictEqual(computed(computed(func)), func);
+      });
+
+      it('Dispose returns its first argument', () => {
+        function func() {}
+        assert.strictEqual(dispose(func), func);
+        assert.strictEqual(dispose(dispose(func)), func);
+      });
+
+      it('Dispose returns nothing if called without a valid first argument', () => {
+        computed(() => {
+          assert.isUndefined(dispose());
+          assert.isUndefined(dispose(null));
+          assert.isUndefined(dispose(undefined));
+          assert.isUndefined(dispose(null, null));
+          assert.isUndefined(dispose(null, undefined));
+          assert.isUndefined(dispose(null, false));
+          assert.isUndefined(dispose(null, true));
+          assert.isUndefined(dispose(undefined, null));
+          assert.isUndefined(dispose(undefined, undefined));
+          assert.isUndefined(dispose(undefined, false));
+          assert.isUndefined(dispose(undefined, true));
+        });
+      });
+
     });
 
-    it('Functions are exempt from implicit reactivity', () => {
-      function func() {}
-      func.x = 10;
-      const object = observe({ func: null });
-      object.func = func;
+    describe('Observed object compatibility:', () => {
 
-      let times = 0; computed(() => (object.func.x, times++));
+      it('Reactive properties can be get/set like normal', () => {
+        const object = observe({ value: 10 });
 
-      assert.strictEqual(times, 1);
-      object.func.x++;
-      assert.strictEqual(times, 1);
+        assert.strictEqual(object.value, 10);
+        object.value = 20;
+        assert.strictEqual(object.value, 20);
+        object.value = { x: 10 };
+        assert.deepEqual(object.value, { x: 10 });
+        object.value += 10;
+        assert.strictEqual(object.value, '[object Object]10');
+      });
+
+      it('Observed objects can be iterated through and spread', () => {
+        const objectObserved = observe({ a: 10, b: 20, c: 30 });
+        const objectSpread = { ...objectObserved };
+        const objectIdentical = { a: 10, b: 20, c: 30 };
+
+        assert.deepEqual(objectObserved, objectSpread);
+        assert.deepEqual(objectObserved, objectIdentical);
+        assert.deepEqual(objectSpread, objectIdentical);
+
+        const keysExpected = ['a', 'b', 'c'];
+
+        let keys = []; for (const key in objectObserved) keys.push(key);
+        assert.deepEqual(keys, keysExpected);
+
+        assert.deepEqual(Object.keys(objectObserved), keysExpected);
+        assert.deepEqual(Object.values(objectObserved), [10, 20, 30]);
+      });
+
+      it('Observed objects can have cyclic references', () => {
+        const object1 = { object2: undefined, value: !0 };
+        const object2 = { object1: undefined, value: !1 };
+        object1.object2 = object2;
+        object2.object1 = object1;
+
+        observe(object1);
+
+        assert.strictEqual(object1.object2, object2);
+        assert.strictEqual(object2.object1, object1);
+        assert.strictEqual(object1.object2.object1, object1);
+        assert.strictEqual(object2.object1.object2, object2);
+        assert.strictEqual(object1.object2.object1.object2.object1.object2, object2);
+
+        assert.strictEqual(object1.object2.object1.object2.object1.value, true);
+        assert.strictEqual(object2.object1.object2.object1.object2.value, false);
+      });
+
+    });
+
+    describe('Reactive functions:', () => {
+
+      it('Functions can be made reactive', () => {
+        function func() {}
+        func.x = 10;
+        observe(func);
+
+        let times = 0; computed(() => (func.x, times++));
+
+        assert.strictEqual(times, 1);
+        func.x++;
+        assert.strictEqual(times, 2);
+      });
+
+      it('Reactive functions can be called', () => {
+        let value;
+        function func(newValue) {
+          value = newValue;
+        }
+
+        observe(func);
+
+        func(50);
+        assert.strictEqual(value, 50);
+      });
+
+      it('Functions are exempt from recursive reactivity', () => {
+        function func() {}
+        func.x = 10;
+        const object = observe({ func });
+
+        let times = 0; computed(() => (object.func.x, times++));
+
+        assert.strictEqual(times, 1);
+        object.func.x++;
+        assert.strictEqual(times, 1);
+      });
+
+      it('Functions are exempt from implicit reactivity', () => {
+        function func() {}
+        func.x = 10;
+        const object = observe({ func: null });
+        object.func = func;
+
+        let times = 0; computed(() => (object.func.x, times++));
+
+        assert.strictEqual(times, 1);
+        object.func.x++;
+        assert.strictEqual(times, 1);
+      });
+
+    });
+
+    describe('Order of execution:', () => {
+
+      it('Computed functions execute in the order they are notified', () => {
+        const values = [];
+        const func1 = () => values.push(1);
+        const func2 = () => values.push(2);
+        const func3 = () => values.push(3);
+        const func4 = () => values.push(4);
+        computed(() => {
+          computed(func2);
+          computed(func4);
+          computed(func1);
+          computed(func3);
+          assert.deepEqual(values, []);
+        });
+
+        assert.deepEqual(values, [2,4,1,3]);
+      });
+
+      it('Computed functions can be notified multiple times but cannot be queued multiple times', () => {
+        const values = [];
+        const func1 = () => values.push(1);
+        const func2 = () => values.push(2);
+        const func3 = () => values.push(3);
+        const func4 = () => values.push(4);
+
+        computed(func1);
+        computed(func2);
+        computed(func1);
+        computed(func3);
+        computed(func4);
+        computed(func3);
+        assert.deepEqual(values, [1,2,1,3,4,3]);
+
+        values.length = 0;
+        computed(() => {
+          computed(func1);
+          computed(func2);
+          computed(func1);
+          computed(func3);
+          computed(func4);
+          computed(func3);
+          assert.deepEqual(values, []);
+        });
+        assert.deepEqual(values, [1,2,3,4]);
+      });
+
+      it('Disposing queued computed functions preserves the queue order', () => {
+        const values = [];
+        const func1 = () => { values.push(1); };
+        const func2 = () => { values.push(2); };
+        const func3 = () => { values.push(3); };
+        const func4 = () => { values.push(4); dispose(func3) };
+        const func5 = () => { values.push(5); };
+
+        computed(() => {
+          computed(func1);
+          computed(func4);
+          computed(func3);
+          computed(func5);
+          computed(func2);
+        });
+        assert.deepEqual(values, [1,4,5,2]);
+      });
+
+      it('Object dependencies are notified in the order they are added', () => {
+        const object = observe({ x: 10 });
+
+        const values = [];
+        const func1 = () => { object.x; values.push(1); };
+        const func2 = () => { object.x; values.push(2); };
+        const func3 = () => { object.x; values.push(3); };
+        const func4 = () => { object.x; values.push(4); };
+
+        computed(func2);
+        computed(func3);
+        computed(func1);
+        computed(func4);
+        assert.deepEqual(values, [2,3,1,4]);
+
+        values.length = 0;
+        object.x++;
+        assert.deepEqual(values, [2,3,1,4]);
+      });
+
+      it('Object dependencies are always notified in the order they are added, even when multiple objects get involved', () => {
+        const object1 = observe({ x: 10 });
+        const object2 = observe({ x: 10 });
+
+        const values = [];
+        let ignoreTwo = true;
+        const createFunc = num => () => {
+          object1.x, ignoreTwo || object2.x;
+          values.push(num);
+        };
+        const func1 = createFunc(1);
+        const func2 = createFunc(2);
+        const func3 = createFunc(3);
+        const func4 = createFunc(4);
+
+        computed(func3);
+        computed(func2);
+        computed(func4);
+        computed(func1);
+        ignoreTwo = false;
+        computed(func1);
+        computed(func2);
+        computed(func3);
+        computed(func4);
+
+        values.length = 0;
+        object1.x++;
+        assert.deepEqual(values, [3,2,4,1]);
+
+        values.length = 0;
+        object2.x++;
+        assert.deepEqual(values, [1,2,3,4]);
+      });
+
+      it('Disposing a dependant computed function preserves the order of the dependencies', () => {
+        const object = observe({ x: 10 });
+
+        const values = [];
+        const func1 = () => { object.x; values.push(1); };
+        const func2 = () => { object.x; values.push(2); };
+        const func3 = () => { object.x; values.push(3); };
+        const func4 = () => { object.x; values.push(4); };
+
+        computed(func3);
+        computed(func2);
+        computed(func4);
+        computed(func1);
+        dispose(func4);
+
+        values.length = 0;
+        object.x++;
+        assert.deepEqual(values, [3,2,1]);
+      });
+
     });
 
   });
-
-  describe('Observer.light (order of execution)', () => {
-
-    it('Computed functions execute in the order they are notified', () => {
-      const values = [];
-      const func1 = () => values.push(1);
-      const func2 = () => values.push(2);
-      const func3 = () => values.push(3);
-      const func4 = () => values.push(4);
-      computed(() => {
-        computed(func2);
-        computed(func4);
-        computed(func1);
-        computed(func3);
-        assert.deepEqual(values, []);
-      });
-
-      assert.deepEqual(values, [2,4,1,3]);
-    });
-
-    it('Computed functions can be notified multiple times but cannot be queued multiple times', () => {
-      const values = [];
-      const func1 = () => values.push(1);
-      const func2 = () => values.push(2);
-      const func3 = () => values.push(3);
-      const func4 = () => values.push(4);
-
-      computed(func1);
-      computed(func2);
-      computed(func1);
-      computed(func3);
-      computed(func4);
-      computed(func3);
-      assert.deepEqual(values, [1,2,1,3,4,3]);
-
-      values.length = 0;
-      computed(() => {
-        computed(func1);
-        computed(func2);
-        computed(func1);
-        computed(func3);
-        computed(func4);
-        computed(func3);
-        assert.deepEqual(values, []);
-      });
-      assert.deepEqual(values, [1,2,3,4]);
-    });
-
-    it('Disposing queued computed functions preserves the queue order', () => {
-      const values = [];
-      const func1 = () => { values.push(1); };
-      const func2 = () => { values.push(2); };
-      const func3 = () => { values.push(3); };
-      const func4 = () => { values.push(4); dispose(func3) };
-      const func5 = () => { values.push(5); };
-
-      computed(() => {
-        computed(func1);
-        computed(func4);
-        computed(func3);
-        computed(func5);
-        computed(func2);
-      });
-      assert.deepEqual(values, [1,4,5,2]);
-    });
-
-    it('Object dependencies are notified in the order they are added', () => {
-      const object = observe({ x: 10 });
-
-      const values = [];
-      const func1 = () => { object.x; values.push(1); };
-      const func2 = () => { object.x; values.push(2); };
-      const func3 = () => { object.x; values.push(3); };
-      const func4 = () => { object.x; values.push(4); };
-
-      computed(func2);
-      computed(func3);
-      computed(func1);
-      computed(func4);
-      assert.deepEqual(values, [2,3,1,4]);
-
-      values.length = 0;
-      object.x++;
-      assert.deepEqual(values, [2,3,1,4]);
-    });
-
-    it('Object dependencies are always notified in the order they are added, even when multiple objects get involved', () => {
-      const object1 = observe({ x: 10 });
-      const object2 = observe({ x: 10 });
-
-      const values = [];
-      let ignoreTwo = true;
-      const createFunc = num => () => {
-        object1.x, ignoreTwo || object2.x;
-        values.push(num);
-      };
-      const func1 = createFunc(1);
-      const func2 = createFunc(2);
-      const func3 = createFunc(3);
-      const func4 = createFunc(4);
-
-      computed(func3);
-      computed(func2);
-      computed(func4);
-      computed(func1);
-      ignoreTwo = false;
-      computed(func1);
-      computed(func2);
-      computed(func3);
-      computed(func4);
-
-      values.length = 0;
-      object1.x++;
-      assert.deepEqual(values, [3,2,4,1]);
-
-      values.length = 0;
-      object2.x++;
-      assert.deepEqual(values, [1,2,3,4]);
-    });
-
-    it('Disposing a dependant computed function preserves the order of the dependencies', () => {
-      const object = observe({ x: 10 });
-
-      const values = [];
-      const func1 = () => { object.x; values.push(1); };
-      const func2 = () => { object.x; values.push(2); };
-      const func3 = () => { object.x; values.push(3); };
-      const func4 = () => { object.x; values.push(4); };
-
-      computed(func3);
-      computed(func2);
-      computed(func4);
-      computed(func1);
-      dispose(func4);
-
-      values.length = 0;
-      object.x++;
-      assert.deepEqual(values, [3,2,1]);
-    });
-
-  });
-
 });

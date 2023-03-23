@@ -3,7 +3,7 @@ import { expect } from 'chai'
 
 const delay = time => new Promise(resolve => setTimeout(resolve, time))
 
-describe('Observable.full', () => {
+describe('Observable.full:', () => {
   it('Simple computation', () => {
     const obj = new Observable({
       a: 1,

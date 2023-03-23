@@ -4,7 +4,7 @@ import { expect } from 'chai'
 const { observe, computed, dispose } = Global
 const delay = time => new Promise(resolve => setTimeout(resolve, time))
 
-describe('Observe.full', () => {
+describe('Observe.full:', () => {
   it('Simple computation', () => {
     const obj = observe({
       a: 1,

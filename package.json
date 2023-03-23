@@ -1,6 +1,6 @@
 {
   "name": "reactivefy",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Small collection of buzzling librsries like events publisher & subscribe pattern, and observable & reactive objects library.",
   "main": "dist/index.js",
   "scripts": {
