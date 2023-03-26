@@ -1,14 +1,14 @@
 {
   "name": "reactivefy",
-  "version": "1.2.1",
-  "description": "Small collection of buzzling librsries like events publisher & subscribe pattern, and observable & reactive objects library.",
+  "version": "1.2.4",
+  "description": "Small collection of buzzling libraries like events publisher & subscribe pattern, and observable & reactive objects library.",
   "main": "dist/index.js",
   "scripts": {
     "test": "mocha ./test --require @babel/register",
     "lint": "eslint ./src ./test",
     "lint:fix": "eslint --fix ./src ./test",
     "clean": "rimraf ./dist",
-    "build:lib": "npm run clean && babel ./src --out-dir ./dist --copy-files",
+    "build": "npm run clean && babel ./src --out-dir ./dist --copy-files",
     "utils:outdated": "npm outdated",
     "utils:updates": "ncu",
     "utils:upgrades": "ncu -u"

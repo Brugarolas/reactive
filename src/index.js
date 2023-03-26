@@ -1,5 +1,5 @@
-import Global from './observable/implementation/proxy/global.js';
-import { Observable } from './observable/implementation/proxy/observable.js';
+import Global from './observables/implementations/full/global.js';
+import { Observable } from './observables/implementations/full/observable.js';
 import { Subscription } from './events/subscription.js';
 
 export default { Global, Observable, Subscription };
