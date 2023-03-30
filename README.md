@@ -896,7 +896,6 @@ object.__proto__++; // No output as properties named __proto__ are ignored
 ```
 
 ## API
-(ADD NETHOD'S TO SUBSCRIBE TO CHANGES).
 
 <h4 id="observe"><code>function observe(object)</code></h4>
 Description:
@@ -914,7 +913,7 @@ Parameters:
 Returns:
 <ul>
   <li>Input <code>object</code>, now reactive</li>
-  <li>There are two methods in returned object to subscribe and unsuscribe to changes.: <code>subscribeToChanges(fn)</code> is to subscribe to changes and returns a <code>subscriptionId</code>, which you can use to unsubscribe to changes if necessary: <code>unsubscribeToChanges(subscriptionId)</code>. Functions passed to <code>subscribeToChanges(fn)</code> will be executed in a non-blocking, asynchronous way</li>
+  <li>There are two methods in returned object to subscribe and unsuscribe to changes: <code>subscribeToChanges(fn)</code> is to subscribe to changes and returns a <code>subscriptionId</code>, which you can use to unsubscribe to changes if necessary: <code>unsubscribeToChanges(subscriptionId)</code>. Functions passed to <code>subscribeToChanges(fn)</code> will be executed in a non-blocking, asynchronous way</li>
 </ul>
 
 <h4 id="ignore"><code>function ignore(object)</code></h4>
