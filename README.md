@@ -43,27 +43,32 @@ And to use `light` version:
 ```
 
 ## Some real world examples
+
 Reactivefy provides functions for observing object mutations and acting on those mutations automatically.
 Possibly the best way to learn is by example, so let's take a page out of [Vue.js's guide](https://vuejs.org/guide/essentials/event-handling.html) and make a button that counts how many times it has been clicked using Reactivefy's `observe(object)` and `computed(func)`:
+
 ```html
 <h1>Click Counter</h1>
-<button onclick="model.clicks++"></button>
+<button class="reactiveButton" onclick="model.clicks++"></button>
 <script>
-  const $button = document.getElementsByTagName("button")[0];
+  const $button = document.querySelector('.reactiveButton');
+
   const model = Global.observe({
     clicks: 0
   });
+
   Global.computed(() => {
     $button.innerText = model.clicks ? `I've been clicked ${model.clicks} times` : "Click me!";
   });
 </script>
 ```
+
 ![](./examples/counter-vid.gif)<br>
-View the [full source](./examples/counter.html).
 
 Notice how in the above example, the `<button>` doesn't do any extra magic to change its text when clicked; it just increments the model's click counter, which is "connected" to the button's text in the computed function.
 
 Now let's try doing some math, here's a snippet that adds and multiplies two numbers:
+
 ```javascript
 const calculator = Global.observe({
   left:    1,
@@ -89,14 +94,17 @@ Pretty cool, right?
 Reavtivefy's main goal is to be as simple as possible; you only need two functions to build almost anything.
 
 ## Examples and snippets
+
 Jump to one of:
-  - [Concatenator](#concatenator)
-  - [Debounced search](#debounced-search)
-  - [Pony browser](#pony-browser)
-  - [Multiple objects snippet](#multiple-objects-snippet)
-  - [Linked computed functions snippet](#linked-computed-functions-snippet)
+
+- [Concatenator](#concatenator)
+- [Debounced search](#debounced-search)
+- [Pony browser](#pony-browser)
+- [Multiple objects snippet](#multiple-objects-snippet)
+- [Linked computed functions snippet](#linked-computed-functions-snippet)
 
 ### Concatenator
+
 ```html
 <h1>Concatenator</h1>
 <input type="text" oninput="model.first = value" placeholder="Enter some"/>
@@ -104,23 +112,27 @@ Jump to one of:
 <h3 id="output"></h3>
 <script>
   const $output = document.getElementById("output");
+
   const model = Global.observe({
     first: "",
     second: "",
     full: ""
   });
+
   Global.computed(() => {
     model.full = model.first + " " + model.second;
   });
+
   Global.computed(() => {
     $output.innerText = model.full;
   });
 </script>
 ```
+
 ![](./examples/concatenator-vid.gif)<br>
-View the [full source](./examples/concatenator.html).
 
 ### Debounced search
+
 ```html
 <h1>Debounced Search</h1>
 <input type="text" oninput="model.input = value" placeholder="Enter your debounced search"/>
@@ -147,10 +159,11 @@ View the [full source](./examples/concatenator.html).
   });
 </script>
 ```
+
 ![](./examples/debounce-vid.gif)<br>
-View the [full source](./examples/debounce.html).
 
 ### Pony browser
+
 ```html
 <main id="app">
   <h1>Pony Browser</h1>
@@ -165,7 +178,63 @@ View the [full source](./examples/debounce.html).
 
   // Declare model
   const model = Global.observe({
-    /* Truncated, find full source in ./examples/pony.html */
+    // Currently selected character set
+        selected: {
+          key: "mane6",
+          current: null // Reference to current character set
+        },
+        // All character sets
+        characterSets: {
+          mane6: {
+            name: "Mane 6",
+            members: [
+              "Twilight Sparkle",
+              "Applejack",
+              "Fluttershy",
+              "Rarity",
+              "Pinkie Pie",
+              "Rainbow Dash"
+            ]
+          },
+          cmc: {
+            name: "Cutie Mark Crusaders",
+            members: [
+              "Apple Bloom",
+              "Scootaloo",
+              "Sweetie Belle",
+              "Babs Seed",
+              "Gabby"
+            ]
+          },
+          royalty: {
+            name: "Royalty",
+            members: [
+              "Princess Celestia",
+              "Princess Luna",
+              "Prince Blueblood",
+              "Shining Armor",
+              "Princess Cadance",
+              "Prince Rutherford",
+              "Flurry Heart",
+              "Ember",
+              "Thorax",
+              "Princess Skystar",
+              "Queen Novo",
+              "Princess Amore"
+            ]
+          },
+          cool: {
+            name: "Cool Ponies :P",
+            members: [
+              "The Great and Powerful Trixie",
+              "Derpy (Muffins!)",
+              "DJ Pon-3",
+              "Discord",
+              "Maud Pie",
+              "Octavia Melody"
+            ]
+          }
+        }
   });
 
   // Populate <select>
@@ -210,10 +279,11 @@ View the [full source](./examples/debounce.html).
   });
 </script>
 ```
+
 ![](./examples/pony-vid.gif)<br>
-View the [full source](./examples/pony.html).
 
 ## Multiple objects snippet
+
 ```javascript
 // Setting up some reactive objects that contain some data about a US president...
 // Disclaimer: I am not an American :P
@@ -221,6 +291,7 @@ const person = Global.observe({
   name: { first: "George", last: "Washington" },
   age: 288
 });
+
 const account = Global.observe({
   user: "big-george12",
   password: "IHateTheQueen!1"
@@ -250,6 +321,7 @@ person.name.first = "Thomas"; // Output: Thomas's username is big-george123 (289
 ```
 
 ### Linked computed functions snippet
+
 ```javascript
 // Create our nums object, with some default values for properties that will be computed
 const nums = Global.observe({
@@ -279,11 +351,11 @@ nums.c += 2;
 console.log(nums.sumAllSums); // Output: 459
 ```
 
-## More examples
+## More simple examples
 
 ### Global API
 
-You cas use the global API like this:
+More, simple examples. You cas use the global API like this:
 
 ```js
     import { Global } from 'reactivefy';
