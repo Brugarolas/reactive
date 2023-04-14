@@ -46,7 +46,7 @@
   "dependencies": {
     "@babel/runtime-corejs3": "^7.21.0",
     "array.observe": "^0.0.1",
-    "nanoid": "^4.0.1",
+    "nanoid": "^4.0.2",
     "object.observe": "^0.2.6",
     "proxy-polyfill": "^0.3.2"
   },
@@ -81,16 +81,16 @@
   "homepage": "https://github.com/Brugarolas/reactive#readme",
   "devDependencies": {
     "@babel/cli": "^7.21.0",
-    "@babel/core": "^7.21.3",
+    "@babel/core": "^7.21.4",
     "@babel/eslint-parser": "^7.21.3",
-    "@babel/preset-env": "^7.20.2",
+    "@babel/preset-env": "^7.21.4",
     "@babel/register": "^7.21.0",
     "babel-preset-minify": "^0.5.2",
     "chai": "^4.3.7",
-    "eslint": "^8.36.0",
+    "eslint": "^8.38.0",
     "eslint-config-canonical": "^41.0.1",
     "mocha": "^10.2.0",
-    "npm-check-updates": "^16.7.13",
-    "rimraf": "^4.4.0"
+    "npm-check-updates": "^16.10.8",
+    "rimraf": "^5.0.0"
   }
 }
